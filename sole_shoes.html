@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SOLE — Premium Footwear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ee; --dark: #1a1208; --accent: #e8410a;
+    --accent2: #c9a96e; --text: #2d2416; --muted: #8a7a68;
+    --card-bg: #ffffff; --nav-h: 72px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  /* VIEW SYSTEM */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--nav-h); display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; background: rgba(245,242,238,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 4px; color: var(--dark); text-decoration: none; cursor: pointer; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.85rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: color .2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .btn-nav { background: var(--dark); color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; text-transform: uppercase; transition: 0.3s; }
+  .btn-nav:hover { background: var(--accent); }
+
+  /* ── AUTH ── */
+  .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .auth-card { display: flex; width: 900px; min-height: 520px; border-radius: 20px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.18); background: #fff; }
+  .auth-left { flex: 0 0 38%; background: linear-gradient(145deg, #e8410a 0%, #c93200 100%); padding: 56px 40px; color: #fff; display: flex; flex-direction: column; justify-content: center; }
+  .auth-right { flex: 1; overflow: hidden; position: relative; }
+  .forms-track { display: flex; width: 200%; transition: transform .6s cubic-bezier(.7,0,.3,1); }
+  body.signup-mode .forms-track { transform: translateX(-50%); }
+  .form-panel { flex: 0 0 50%; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .field input { width: 100%; padding: 12px; border: 1.5px solid #e8e0d8; border-radius: 8px; }
+  .submit-btn { background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+
+  /* ── HERO SLIDER ── */
+  .hero { margin-top: var(--nav-h); height: calc(100vh - var(--nav-h)); position: relative; overflow: hidden; background: var(--dark); }
+  .slide { position: absolute; inset: 0; display: flex; align-items: center; opacity: 0; transition: opacity .7s ease; pointer-events: none; }
+  .slide.active { opacity: 1; pointer-events: all; }
+  .slide-bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 6s ease; }
+  .slide.active .slide-bg { transform: scale(1.04); }
+  .slide-overlay { position: absolute; inset: 0; background: linear-gradient(110deg, rgba(26,18,8,0.85) 40%, transparent 75%); }
+  .slide-content { position: relative; z-index: 2; padding-left: 80px; max-width: 580px; }
+  .slide-tag { display: inline-block; background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; padding: 6px 14px; border-radius: 3px; margin-bottom: 20px; transform: translateX(-30px); opacity: 0; transition: all .5s ease .2s; }
+  .slide.active .slide-tag { transform: translateX(0); opacity: 1; }
+  .slide-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3.5rem, 7vw, 6rem); line-height: 0.95; color: #fff; letter-spacing: 2px; transform: translateY(30px); opacity: 0; transition: all .55s ease .35s; }
+  .slide.active .slide-title { transform: translateY(0); opacity: 1; }
+  .slide-title em { color: var(--accent2); font-style: normal; }
+  .slide-desc { margin-top: 20px; color: rgba(255,255,255,0.65); font-size: 1rem; line-height: 1.7; max-width: 380px; transform: translateY(20px); opacity: 0; transition: all .55s ease .5s; }
+  .slide.active .slide-desc { transform: translateY(0); opacity: 1; }
+  .slide-price { margin-top: 28px; font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: var(--accent2); letter-spacing: 2px; opacity: 0; transition: opacity .4s ease .65s; }
+  .slide.active .slide-price { opacity: 1; }
+  .slide-actions { margin-top: 24px; display: flex; gap: 14px; opacity: 0; transition: opacity .4s ease .75s; }
+  .slide.active .slide-actions { opacity: 1; }
+  .slide-shoe { position: absolute; right: 8%; bottom: 10%; width: clamp(300px, 38vw, 520px); transform: translateX(60px) rotate(-8deg); opacity: 0; transition: all .8s cubic-bezier(.22,.68,0,1.2) .3s; filter: drop-shadow(0 40px 60px rgba(0,0,0,0.5)); }
+  .slide.active .slide-shoe { transform: translateX(0) rotate(-4deg); opacity: 1; }
+  
+  .slider-nav { position: absolute; bottom: 40px; left: 80px; display: flex; gap: 10px; z-index: 10; }
+  .slider-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; border: none; }
+  .slider-dot.active { background: var(--accent); width: 28px; border-radius: 4px; }
+  .slider-arrows { position: absolute; right: 48px; bottom: 30px; display: flex; gap: 12px; z-index: 10; }
+  .arrow-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* ── CATALOG ── */
+  .catalog { padding: 100px 60px; background: var(--bg); }
+  .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 60px; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 3.8rem; line-height: 1; }
+  .shoe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px; }
+  .shoe-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; text-decoration: none; color: inherit; display: block; position: relative; }
+  .shoe-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
+  .shoe-card-img { height: 220px; background: #f0ece6; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;}
+  .shoe-card-img img { width: 85%; transition: 0.4s ease; }
+  .shoe-card:hover .shoe-card-img img { transform: scale(1.07) rotate(-3deg); }
+  .card-badge { position: absolute; top: 14px; left: 14px; background: var(--accent); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 3px; z-index: 5; }
+
+  /* ── DETAIL ── */
+  .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; padding: 40px 60px; max-width: 1200px; margin: 0 auto; }
+  .main-img-box { background: #fff; border-radius: 16px; height: 460px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+  .main-img-box img { width: 80%; animation: float 3s infinite ease-in-out; }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(-2deg); } }
+  .thumbs { display: flex; gap: 12px; margin-top: 20px; }
+  .thumb { width: 80px; height: 80px; border-radius: 10px; background: #fff; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .thumb.active { border-color: var(--accent); }
+  .thumb img { width: 80%; }
+  .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; outline: 2px solid transparent; outline-offset: 2px; }
+  .color-dot.active { outline-color: var(--accent); }
+  .size-btn { width: 52px; height: 40px; border-radius: 6px; background: #fff; border: 1.5px solid #ddd; cursor: pointer; }
+  .size-btn.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 32px; padding-top: 28px; border-top: 1px solid #eee; }
+
+  /* ── BRANDS ── */
+  .brands { padding: 60px; background: var(--dark); display: flex; gap: 60px; justify-content: center; flex-wrap: wrap; }
+  .brand-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 4px; color: rgba(255,255,255,0.2); }
+
+  footer { background: #110e07; color: rgba(255,255,255,0.5); padding: 40px 60px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--dark); color: #fff; padding: 14px 24px; border-radius: 10px; transform: translateY(80px); opacity: 0; transition: 0.4s; z-index: 1000; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<nav id="mainNav" style="display:none;">
+  <div class="logo" onclick="showView('catalogView')">SOL<span>E</span></div>
+  <ul class="nav-links">
+    <li><a onclick="showView('catalogView')">New Arrivals</a></li>
+    <li><a>Men</a></li>
+    <li><a>Women</a></li>
+    <li><a>Collections</a></li>
+    <li><a>Sale</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-nav" onclick="showView('authView')">Sign Out</button>
+  </div>
+</nav>
+
+<section id="authView" class="view active">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-left">
+        <h2 style="font-family:'Bebas Neue'; font-size:3rem;">WELCOME<br>BACK</h2>
+        <p style="margin:20px 0; opacity:0.8;">The next step in your style journey starts here.</p>
+        <button class="btn-nav" style="background:transparent; border:1px solid #fff;" onclick="document.body.classList.toggle('signup-mode')">Switch Mode</button>
+      </div>
+      <div class="auth-right">
+        <div class="forms-track">
+          <div class="form-panel">
+            <h2 style="font-family:'Bebas Neue'; margin-bottom:20px;">Sign In</h2>
+            <div class="field"><label>Email</label><input type="email"></div>
+            <div class="field"><label>Password</label><input type="password"></div>
+            <button class="submit-btn" onclick="login()">Enter Studio</button>
+          </div>
+          <div class="form-panel">
+            <h2 style="font-family:'Bebas Neue'; margin-bottom:20px;">Register</h2>
+            <div class="field"><label>Full Name</label><input type="text"></div>
+            <div class="field"><label>Email</label><input type="email"></div>
+            <button class="submit-btn" onclick="login()">Create Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="catalogView" class="view">
+  <section class="hero">
+    <div class="slide active" id="slide-0">
+      <div class="slide-bg" style="background: linear-gradient(135deg, #1a1208 0%, #3d2910 100%);"></div>
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <span class="slide-tag">New Drop 2026</span>
+        <h1 class="slide-title">Air Force<br><em>Classic</em></h1>
+        <p class="slide-desc">Timeless silhouette reborn. Premium leather upper with cushioned sole — built for the streets, made for legends.</p>
+        <div class="slide-price">$180.00</div>
+        <div class="slide-actions">
+          <button class="submit-btn" style="width:auto; padding:14px 32px;" onclick="openDetails(0)">View Details</button>
+          <a href="#catalog" class="btn-nav" style="background:transparent; border:1px solid rgba(255,255,255,0.3); text-decoration:none; display:inline-block;">Browse All</a>
+        </div>
+      </div>
+      <img class="slide-shoe" src="https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/b7d9211d-1785-4f76-b7a9-56e5e62a529d/air-force-1-07-mens-shoes-jBrhbr.png">
+    </div>
+    <div class="slide" id="slide-1">
+      <div class="slide-bg" style="background: linear-gradient(135deg, #0d1a2e 0%, #1a3350 100%);"></div>
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <span class="slide-tag">Limited Edition</span>
+        <h1 class="slide-title">Retro<br><em>Jordan</em></h1>
+        <p class="slide-desc">Court-born, culture-raised. The silhouette that changed basketball and defined a generation.</p>
+        <div class="slide-price">$210.00</div>
+        <div class="slide-actions">
+          <button class="submit-btn" style="width:auto; padding:14px 32px;" onclick="openDetails(1)">View Details</button>
+        </div>
+      </div>
+      <img class="slide-shoe" src="https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/e6da41fa-1be4-4ce5-b89c-22be4f1f02d4/air-jordan-1-retro-high-og-shoes-2q5DNH.png">
+    </div>
+
+    <div class="slider-nav">
+      <button class="slider-dot active" onclick="goSlide(0)"></button>
+      <button class="slider-dot" onclick="goSlide(1)"></button>
+    </div>
+    <div class="slider-arrows">
+      <button class="arrow-btn" onclick="prevSlide()">&#8592;</button>
+      <button class="arrow-btn" onclick="nextSlide()">&#8594;</button>
+    </div>
+  </section>
+
+  <section class="catalog" id="catalog">
+    <div class="section-header">
+      <div>
+        <div style="color:var(--accent); font-weight:700; letter-spacing:4px; font-size:0.75rem; text-transform:uppercase;">Shop Now</div>
+        <div class="section-title">Featured Drops</div>
+      </div>
+      <a class="logo" style="font-size:0.85rem; border-bottom:1px solid var(--muted); letter-spacing:1px; color:var(--muted);">See All →</a>
+    </div>
+    <div class="shoe-grid" id="mainGrid"></div>
+  </section>
+
+  <div class="brands">
+    <span class="brand-logo">NIKE</span><span class="brand-logo">ADIDAS</span><span class="brand-logo">JORDAN</span><span class="brand-logo">NEW BALANCE</span><span class="brand-logo">PUMA</span><span class="brand-logo">REEBOK</span>
+  </div>
+</section>
+
+<section id="detailView" class="view" style="padding-top:var(--nav-h);">
+  <div class="detail-layout">
+    <div class="img-side">
+      <div class="main-img-box">
+        <span class="card-badge" id="detBadge"></span>
+        <img id="detImg" src="">
+      </div>
+      <div class="thumbs" id="detThumbs"></div>
+    </div>
+    <div class="info-side">
+      <div id="detBrand" style="color:var(--accent); font-weight:700; letter-spacing:2px; text-transform:uppercase; font-size:0.8rem;"></div>
+      <h1 id="detName" style="font-family:'Bebas Neue'; font-size:3.5rem; margin:10px 0;"></h1>
+      <div style="color:#f5a623; margin-bottom:20px;">★★★★★ <span style="color:var(--muted); font-size:0.8rem; font-family:'DM Sans'">(142 reviews)</span></div>
+      <div style="font-family:'Bebas Neue'; font-size:2.5rem; margin-bottom:20px;" id="detPrice"></div>
+      <p id="detDesc" style="color:var(--muted); line-height:1.7; margin-bottom:30px;"></p>
+      
+      <p style="font-weight:700; font-size:0.75rem; text-transform:uppercase; margin-bottom:10px;">Select Color</p>
+      <div class="thumbs" id="detColors" style="margin-bottom:25px;"></div>
+
+      <p style="font-weight:700; font-size:0.75rem; text-transform:uppercase; margin-bottom:10px;">Select Size</p>
+      <div class="size-grid" id="detSizes" style="display:flex; gap:10px; margin-bottom:30px;"></div>
+
+      <div style="display:flex; gap:15px;">
+        <button class="submit-btn" style="flex:1;" onclick="showToast('Added to Cart!')">Add to Cart</button>
+        <button class="btn-nav" style="background:#eee; color:#111;" onclick="showView('catalogView')">Back to Shop</button>
+      </div>
+
+      <div class="features">
+        <div style="display:flex; gap:10px;"><span>🚚</span> <div><strong>Free Delivery</strong><br><small>On all orders</small></div></div>
+        <div style="display:flex; gap:10px;"><span>✅</span> <div><strong>Authentic</strong><br><small>100% Guaranteed</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 SOLE Premium Footwear. All rights reserved.</span>
+  <span>Made with ♥ by SOLE Studio</span>
+</footer>
+
+<div id="toast" class="toast">Action Success!</div>
+
+<script>
+const shoes = [
+  { id:0, brand:"Nike", name:"Air Force 1 '07 Classic", price:180, oldPrice:220, badge:"Best Seller", img:"https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/b7d9211d-1785-4f76-b7a9-56e5e62a529d/air-force-1-07-mens-shoes-jBrhbr.png", desc:"The radically original Air Force 1 was the first basketball shoe to use Nike Air, changing the game forever.", colors:["#fff","#111","#c9a96e"], sizes:[7,8,9,10,11,12] },
+  { id:1, brand:"Jordan", name:"Air Jordan 1 Retro High OG", price:210, oldPrice:null, badge:"New", img:"https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/e6da41fa-1be4-4ce5-b89c-22be4f1f02d4/air-jordan-1-retro-high-og-shoes-2q5DNH.png", desc:"Inspired by the original that Michael Jordan wore in 1985.", colors:["#c0392b","#111","#fff"], sizes:[7,8,9,10,11,12] },
+  { id:2, brand:"Adidas", name:"Ultraboost Light '26", price:190, oldPrice:230, badge:"Sale", img:"https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/fbaf991a78bc4896a3e9ad7800abcec6_9366/Ultraboost_Light_Shoes_White_GY9351_01_standard.jpg", desc:"Engineered for maximum energy return. Every step propels you further.", colors:["#fff","#111","#3498db"], sizes:[6,7,8,9,10,11] },
+  { id:3, brand:"Nike", name:"Dunk Low Retro", price:110, oldPrice:130, badge:null, img:"https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/9H3umRVZiUhEj6cf/dunk-low-retro-mens-shoes-76KnBL.png", desc:"Originally designed for the hardwood, the Nike Dunk Low has evolved beyond the court.", colors:["#fff","#27ae60","#8e44ad"], sizes:[7,8,9,10,11,12] },
+  { id:4, brand:"New Balance", name:"990v6 Made in USA", price:225, oldPrice:null, badge:"Premium", img:"https://nb.scene7.com/is/image/NB/m990gl6_nb_02_i?$pdpflexf2$&qlt=80&fmt=webp&wid=440&hei=440", desc:"The 990v6 is the next evolution of one of New Balance's most iconic silhouettes.", colors:["#95a5a6","#2c3e50","#111"], sizes:[7,8,9,10,11,12] },
+  { id:5, brand:"Puma", name:"Suede Classic XXI", price:75, oldPrice:95, badge:"Sale", img:"https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_600,h_600/global/374915/01/sv01/fnd/PNA/fmt/png/Suede-Classic-XXI-Sneakers", desc:"The Suede has been at the heart of street culture since its debut in 1968.", colors:["#111","#f1c40f","#2980b9"], sizes:[6,7,8,9,10,11,12] },
+  { id:6, brand:"Reebok", name:"Classic Leather Legacy", price:90, oldPrice:null, badge:null, img:"https://assets.reebok.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/1d3a1fd4f97843b483a9af620113d58c_9366/Classic_Leather_Shoes_White_GY3558_01_standard.jpg", desc:"Where heritage meets innovation. Unbeatable style.", colors:["#fff","#ddd","#111"], sizes:[7,8,9,10,11] },
+  { id:7, brand:"Nike", name:"Air Max 90 Essential", price:130, oldPrice:160, badge:"Popular", img:"https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/i1-665455a5-45de-40fb-945f-c1852b82400d/air-max-90-mens-shoes-6n3vKB.png", desc:"Lace up and feel the heritage. The Air Max 90 stays true to its OG roots.", colors:["#fff","#111","#e74c3c"], sizes:[7,8,9,10,11,12] }
+];
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('mainNav').style.display = (id === 'authView') ? 'none' : 'flex';
+  window.scrollTo(0,0);
+}
+
+function login() {
+  showToast("Welcome to SOLE, Sama!");
+  setTimeout(() => showView('catalogView'), 800);
+}
+
+// Render Main Grid
+const grid = document.getElementById('mainGrid');
+shoes.forEach(s => {
+  grid.innerHTML += `
+    <div class="shoe-card" onclick="openDetails(${s.id})">
+      <div class="shoe-card-img">
+        <img src="${s.img}" loading="lazy">
+        ${s.badge ? `<span class="card-badge">${s.badge}</span>` : ''}
+      </div>
+      <div style="padding:20px;">
+        <div style="font-size:0.7rem; color:var(--muted); font-weight:700; text-transform:uppercase;">${s.brand}</div>
+        <div style="font-weight:600; margin:5px 0;">${s.name}</div>
+        <div style="font-family:'Bebas Neue'; font-size:1.4rem;">$${s.price}</div>
+      </div>
+    </div>
+  `;
+});
+
+function openDetails(id) {
+  const s = shoes.find(x => x.id === id);
+  document.getElementById('detImg').src = s.img;
+  document.getElementById('detName').innerText = s.name;
+  document.getElementById('detBrand').innerText = s.brand;
+  document.getElementById('detPrice').innerText = `$${s.price}`;
+  document.getElementById('detDesc').innerText = s.desc;
+
+  const badge = document.getElementById('detBadge');
+  if(s.badge) { badge.innerText = s.badge; badge.style.display = 'block'; }
+  else { badge.style.display = 'none'; }
+
+  const tbox = document.getElementById('detThumbs');
+  tbox.innerHTML = '';
+  for(let i=0; i<3; i++) tbox.innerHTML += `<div class="thumb ${i===0?'active':''}"><img src="${s.img}"></div>`;
+
+  const cbox = document.getElementById('detColors');
+  cbox.innerHTML = '';
+  s.colors.forEach((c, idx) => cbox.innerHTML += `<div class="color-dot ${idx===0?'active':''}" style="background:${c}"></div>`);
+
+  const sbox = document.getElementById('detSizes');
+  sbox.innerHTML = '';
+  s.sizes.forEach(sz => sbox.innerHTML += `<button class="size-btn">${sz}</button>`);
+
+  showView('detailView');
+}
+
+// Slider Logic
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.slider-dot');
+function goSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+function nextSlide() { goSlide(current + 1); }
+function prevSlide() { goSlide(current - 1); }
+setInterval(nextSlide, 5000);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
